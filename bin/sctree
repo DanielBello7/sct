@@ -1,0 +1,2 @@
+#!/usr/bin/env sh
+node --no-warnings --experimental-strip-types "$(dirname "$0")/../gen.ts" "$@"
