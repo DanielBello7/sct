@@ -30,4 +30,5 @@ jspm_packages/
 .cursor
 .vscode
 .vsCode
+.hidden
 
