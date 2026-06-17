@@ -17,7 +17,7 @@ const RESERVED_KEYWORDS = new Set([
 	"description",
 ]);
 
-export type SctAst = {
+export type SctreeAst = {
 	metadataLines: string[];
 	root: TreeNode;
 };
@@ -32,7 +32,7 @@ function assertIdentifier(name: string, kind: "file" | "folder") {
 	}
 }
 
-export function parseSct(source: string): SctAst {
+export function parseSctree(source: string): SctreeAst {
 	const lines = source.split(/\r?\n/);
 	const metadataLines: string[] = [];
 	const stack: TreeNode[] = [];
@@ -131,7 +131,7 @@ export function parseSct(source: string): SctAst {
 	}
 
 	if (!root) {
-		throw new Error("No root folder found. Run `sct init` first.");
+		throw new Error("No root folder found. Run `sctree init` first.");
 	}
 
 	return { metadataLines, root };

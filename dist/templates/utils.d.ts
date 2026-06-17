@@ -1,4 +1,4 @@
-import type { TreeNode } from "../libs/sct";
+import type { TreeNode } from "../libs/sctree";
 export type { TreeNode };
 export declare function file(name: string): TreeNode;
 export declare function folder(name: string, children?: TreeNode[]): TreeNode;

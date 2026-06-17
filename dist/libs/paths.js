@@ -1,26 +1,26 @@
 import { join, resolve } from "node:path";
 import { OUTPUT_DIR } from "../constants/index.js";
 import fs from "fs-extra";
-function sctPathForProject(projectName) {
-    return resolve(process.cwd(), OUTPUT_DIR, `${projectName}.sct`);
+function sctreePathForProject(projectName) {
+    return resolve(process.cwd(), OUTPUT_DIR, `${projectName}.sctree`);
 }
-async function findSctPath() {
+async function findSctreePath() {
     const outputDir = resolve(process.cwd(), OUTPUT_DIR);
     if (!(await fs.pathExists(outputDir))) {
         return undefined;
     }
     const entries = await fs.readdir(outputDir);
-    const sctFiles = entries.filter((entry) => entry.endsWith(".sct"));
-    if (sctFiles.length === 0) {
+    const sctreeFiles = entries.filter((entry) => entry.endsWith(".sctree"));
+    if (sctreeFiles.length === 0) {
         return undefined;
     }
-    if (sctFiles.length > 1) {
-        throw new Error(`Multiple .sct files found in ${outputDir}. Keep one active project file for now.`);
+    if (sctreeFiles.length > 1) {
+        throw new Error(`Multiple .sctree files found in ${outputDir}. Keep one active project file for now.`);
     }
-    return join(outputDir, sctFiles[0]);
+    return join(outputDir, sctreeFiles[0]);
 }
-function displaySctPath(projectName) {
-    return `${OUTPUT_DIR}/${projectName}.sct`;
+function displaySctreePath(projectName) {
+    return `${OUTPUT_DIR}/${projectName}.sctree`;
 }
-export { displaySctPath, findSctPath, sctPathForProject };
+export { displaySctreePath, findSctreePath, sctreePathForProject };
 //# sourceMappingURL=paths.js.map

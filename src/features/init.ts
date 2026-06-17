@@ -1,5 +1,6 @@
 import { cancel, intro, isCancel, outro, select, text } from "@clack/prompts";
-import { displaySctPath, sctPathForProject } from "@/libs/paths";
+import { displaySctreePath, sctreePathForProject } from "@/libs/paths";
+import { ensureProjectSupportFiles } from "@/libs/project-files";
 import { formatSctDocument } from "@/libs/formatter";
 import { templateForMetadata } from "@/libs/templates";
 import {
@@ -44,7 +45,7 @@ function getPromptValue<T>(value: T | symbol): T {
 }
 
 async function askMetadata(options: InitOptions): Promise<ProjectMetadata> {
-	intro(pc.bold("sct init"));
+	intro(pc.bold("sctree init"));
 
 	if (options.yes) {
 		const metadata = {
@@ -135,8 +136,8 @@ async function askMetadata(options: InitOptions): Promise<ProjectMetadata> {
 
 async function init(options: InitOptions) {
 	const metadata = await askMetadata(options);
-	const outputPath = sctPathForProject(metadata.name);
-	const outputFile = displaySctPath(metadata.name);
+	const outputPath = sctreePathForProject(metadata.name);
+	const outputFile = displaySctreePath(metadata.name);
 
 	if (await fs.pathExists(outputPath)) {
 		const stats = await fs.stat(outputPath);
@@ -150,7 +151,13 @@ async function init(options: InitOptions) {
 	}
 
 	await fs.outputFile(outputPath, createStarterSct(metadata), "utf8");
-	outro(pc.green(`Initialized ${outputFile}`));
+	const createdSupportFiles = await ensureProjectSupportFiles();
+	const supportFileMessage =
+		createdSupportFiles.length > 0
+			? ` with ${createdSupportFiles.join(", ")}`
+			: "";
+
+	outro(pc.green(`Initialized ${outputFile}${supportFileMessage}`));
 }
 
 export { init };

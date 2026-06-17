@@ -1,6 +1,6 @@
-import type { SctAst, TreeNode } from "@/libs/sct";
+import type { SctreeAst, TreeNode } from "@/libs/sctree";
 
-function renderHtml(ast: SctAst) {
+function renderHtml(ast: SctreeAst) {
 	const title = ast.root.name;
 	const metadata = parseMetadata(ast.metadataLines);
 	const description = metadata.find(

@@ -1,9 +1,12 @@
-# SCT
+# SCTree
 
-SCT, short for Software Construction Tree, is a CLI for creating and maintaining
-`.sct` documents. An SCT document describes the planned folder and file structure
-of a software project in a small, readable syntax that can be rendered as a
-terminal tree, HTML preview, or text file.
+SCTree is the language and CLI for Software Construction Tree documents.
+
+Software Construction Tree, or SCT, is the design system. SCTree is the notation
+used to describe a project structure in `.sctree` files. An SCTree document
+describes the planned folder and file structure of a software project in a small,
+readable syntax that can be rendered as a terminal tree, HTML preview, or text
+file.
 
 It is meant to sit between project planning and implementation: a lightweight
 artifact that communicates how a project should be shaped before every file has
@@ -11,41 +14,66 @@ to exist on disk.
 
 ## Installation
 
+Install globally:
+
 ```bash
 npm install -g sctree-cli
 ```
 
-After installation, the CLI is available as:
+When npm's global binary directory is on your `PATH`, the command is available
+as:
 
 ```bash
-sct
+sctree
+```
+
+If your shell cannot find `sctree`, check npm's global install prefix:
+
+```bash
+npm prefix -g
+```
+
+On macOS/Linux, global binaries are usually inside the `bin` folder under that
+prefix. Make sure that folder is included in your `PATH`.
+
+You can also run the `sctree` binary without a global install:
+
+```bash
+npx sctree-cli --help
+npx sctree-cli init
 ```
 
 ## Quick Start
 
-Create a new SCT document interactively:
+Create a new SCTree document interactively:
 
 ```bash
-sct init
+sctree init
 ```
 
 Create one immediately with defaults:
 
 ```bash
-sct init -y
+sctree init -y
 ```
 
 Create one with specific metadata:
 
 ```bash
-sct init -y --name ApiProject --language csharp --framework aspnet-core
+sctree init -y --name ApiProject --language csharp --framework aspnet-core
 ```
 
-SCT files are written to `.out/` by default.
+Scan an existing project into an SCTree document:
 
-## Example `.sct` File
+```bash
+sctree scan --name ExistingProject
+```
 
-```sct
+SCTree files are written to `.out/` by default.
+
+## Example `.sctree` File
+
+```sctree
 name                    = "Project"
 type                    = "none"
 language                = "typescript"
@@ -66,40 +94,41 @@ root Project {
 ### Init
 
 ```bash
-sct init
-sct init -y
-sct init --yes
-sct init --y
+sctree init
+sctree init -y
+sctree init --yes
+sctree init --y
 ```
 
-`init` creates a new `.sct` document. The `-y` and `--yes` flags skip prompts and
-use defaults for missing values.
+`init` creates a new `.sctree` document, plus `.sctreeignore` and `sctree.config.json` in
+the project root. The `-y` and `--yes` flags skip prompts and use defaults for
+missing values.
 
 ### Add
 
 Add a file:
 
 ```bash
-sct add file users.controller.ts src/modules/users
+sctree add file users.controller.ts src/modules/users
 ```
 
 Add a folder:
 
 ```bash
-sct add folder users src/modules
+sctree add folder users src/modules
 ```
 
 Use the shorthand file form:
 
 ```bash
-sct add users.controller.ts src/modules/users
+sctree add users.controller.ts src/modules/users
 ```
 
 Add multiple files or folders at once:
 
 ```bash
-sct add file -c users.controller.ts users.service.ts -d src/modules/users
-sct add folder -c users posts comments -d src/modules
+sctree add file -c users.controller.ts users.service.ts -d src/modules/users
+sctree add folder -c users posts comments -d src/modules
 ```
 
 ### Remove
@@ -107,39 +136,94 @@ sct add folder -c users posts comments -d src/modules
 Remove every matching file or folder name:
 
 ```bash
-sct rm users.controller.ts
+sctree rm users.controller.ts
 ```
 
 Remove a matching entry under a specific folder:
 
 ```bash
-sct rm users.controller.ts src/modules/users
+sctree rm users.controller.ts src/modules/users
 ```
 
-If the target is a folder, the folder and its children are removed from the SCT
+If the target is a folder, the folder and its children are removed from the SCTree
 tree.
+
+### Scan
+
+Generate a `.sctree` document from the current project structure:
+
+```bash
+sctree scan
+```
+
+Set metadata while scanning:
+
+```bash
+sctree scan --name ApiProject --language csharp --framework aspnet-core
+```
+
+Overwrite an existing generated file:
+
+```bash
+sctree scan --force
+```
+
+### Update
+
+Scan the current project and add missing filesystem entries to the active `.sctree`
+document:
+
+```bash
+sctree update
+```
 
 ### Render
 
 Render the tree in the terminal:
 
 ```bash
-sct render
+sctree render
 ```
 
 Render an HTML preview:
 
 ```bash
-sct render --html
+sctree render --html
 ```
 
 Render a text preview file:
 
 ```bash
-sct render --txt
+sctree render --txt
 ```
 
-Preview files are written to `.out/` beside the `.sct` file.
+Preview files are written to `.out/` beside the `.sctree` file.
+
+## Ignore And Config Files
+
+Use `.sctreeignore` to exclude paths from `sctree scan` and `sctree update`.
+
+```text
+node_modules
+dist
+.out
+coverage
+```
+
+Use `sctree.config.json` to opt into filesystem changes when `sctree add` or `sctree rm`
+is called.
+
+```json
+{
+  "filesystem": {
+    "applyOnAdd": false,
+    "applyOnRemove": false
+  }
+}
+```
+
+Both settings default to `false`, so add/remove only update the `.sctree` document
+unless you explicitly enable filesystem changes.
 
 ## Supported Options
 
@@ -176,10 +260,37 @@ C#:
 For more details about the language, syntax, parser rules, templates, and design
 direction, see:
 
-- [SCT intro](docs/intro.v2.md)
-- [SCT v2 specification](docs/rules.v2.md)
+- [SCTree intro](docs/intro.v2.md)
+- [SCTree v2 specification](docs/rules.v2.md)
+
+## Publishing
+
+The npm package is `sctree-cli`, but the installed command is `sctree`.
+
+Before publishing, run:
+
+```bash
+pnpm run typecheck
+pnpm run test:build
+npm pack --dry-run
+```
+
+Publish by creating a version tag:
+
+```bash
+git tag v0.2.0
+git push origin v0.2.0
+```
+
+The GitHub Actions workflow verifies the package and publishes it to npm using
+the `NPM_TOKEN` repository secret. After release, users can run:
+
+```bash
+npx sctree-cli init
+```
 
 ## Status
 
-SCT is early and evolving. The current release focuses on project metadata,
-files, folders, templates, add/remove commands, and preview rendering..
+SCTree is early and evolving. The current release focuses on project metadata,
+files, folders, templates, add/remove commands, project scanning, updating, and
+preview rendering.

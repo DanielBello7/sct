@@ -72,8 +72,8 @@ function formatSctDocument(metadata, root) {
 ${formatRoot(root).join("\n")}
 `;
 }
-function formatSctAst(ast) {
+function formatSctreeAst(ast) {
     return `${formatMetadataLines(ast.metadataLines).join("\n")}\n\n${formatRoot(ast.root).join("\n")}\n`;
 }
-export { formatMetadata, formatMetadataLine, formatMetadataLines, formatNode, formatRoot, formatSctAst, formatSctDocument, };
+export { formatMetadata, formatMetadataLine, formatMetadataLines, formatNode, formatRoot, formatSctreeAst, formatSctDocument, };
 //# sourceMappingURL=formatter.js.map

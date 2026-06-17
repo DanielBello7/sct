@@ -1,5 +1,5 @@
 import { METADATA_ORDER, METADATA_KEY_WIDTH } from "@/constants";
-import type { SctAst, TreeNode } from "@/libs/sct";
+import type { SctreeAst, TreeNode } from "@/libs/sctree";
 import type { ProjectMetadata } from "@/types";
 import type { MetadataKey } from "@/types";
 
@@ -98,7 +98,7 @@ ${formatRoot(root).join("\n")}
 `;
 }
 
-function formatSctAst(ast: SctAst) {
+function formatSctreeAst(ast: SctreeAst) {
 	return `${formatMetadataLines(ast.metadataLines).join("\n")}\n\n${formatRoot(ast.root).join("\n")}\n`;
 }
 
@@ -108,6 +108,6 @@ export {
 	formatMetadataLines,
 	formatNode,
 	formatRoot,
-	formatSctAst,
+	formatSctreeAst,
 	formatSctDocument,
 };

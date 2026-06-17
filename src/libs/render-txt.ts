@@ -1,7 +1,7 @@
 import { renderTree } from "@/libs/render-tree";
-import type { SctAst } from "@/libs/sct";
+import type { SctreeAst } from "@/libs/sctree";
 
-function renderTxt(ast: SctAst) {
+function renderTxt(ast: SctreeAst) {
 	return `${renderTree(ast.root)}\n`;
 }
 

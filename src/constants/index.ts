@@ -8,6 +8,16 @@ const DEFAULT_VERSION = "0.1.0";
 const METADATA_KEY_WIDTH = 24;
 const OUTPUT_DIR = ".out";
 
+const DEFAULT_IGNORE_PATTERNS = [
+	".git",
+	".DS_Store",
+	OUTPUT_DIR,
+	"node_modules",
+	"dist",
+	"build",
+	"coverage",
+];
+
 const METADATA_ORDER: MetadataKey[] = [
 	"name",
 	"type",
@@ -73,4 +83,5 @@ export {
 	LANGUAGE_FRAMEWORK_OPTIONS,
 	OUTPUT_DIR,
 	METADATA_ORDER,
+	DEFAULT_IGNORE_PATTERNS,
 };

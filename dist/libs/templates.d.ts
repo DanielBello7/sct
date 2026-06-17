@@ -1,4 +1,4 @@
-import type { TreeNode } from "./sct";
+import type { TreeNode } from "./sctree";
 type TemplateMetadata = {
     name: string;
     language: string;

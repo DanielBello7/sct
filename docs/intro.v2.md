@@ -1,11 +1,14 @@
-# Software Construction Tree
+# Software Construction Tree And SCTree
 
 Software Construction Tree, or SCT, is a planning artifact for describing the
 shape of a software project before or during implementation.
 
+SCTree is the language and CLI used to write, scan, update, and render `.sctree`
+documents.
+
 Most software projects eventually become a collection of folders and files. The
 folder structure communicates architecture, boundaries, ownership, conventions,
-and development intent. SCT makes that structure explicit in a dedicated `.sct`
+and development intent. SCTree makes that structure explicit in a dedicated `.sctree`
 document that can be read by humans, rendered as a preview, and used by tools.
 
 ## Why SCT Exists
@@ -31,9 +34,9 @@ The goal is to give the project structure its own durable artifact.
 
 ## The Artifact
 
-An SCT document uses the `.sct` extension.
+An SCTree document uses the `.sctree` extension.
 
-```sct
+```sctree
 name                    = "Project"
 type                    = "none"
 language                = "typescript"
@@ -54,11 +57,11 @@ easy to diff, easy to generate, and easy for tools to parse.
 
 ## Presentation Mode
 
-Every SCT document has two useful representations.
+Every SCTree document has two useful representations.
 
 The first is the editable source representation:
 
-```sct
+```sctree
 root Project {
   folder src {
     file index.ts
@@ -77,16 +80,16 @@ Project
 The CLI currently supports terminal rendering and HTML rendering:
 
 ```bash
-sct render
-sct render --html
+sctree render
+sctree render --html
 ```
 
-The HTML renderer follows the same idea as a Markdown preview. The `.sct` source
+The HTML renderer follows the same idea as a Markdown preview. The `.sctree` source
 is parsed, transformed, and displayed as a richer visual document.
 
 ## What SCT Helps With
 
-SCT is useful when a project structure needs to be shared, reviewed, generated,
+SCTree is useful when a project structure needs to be shared, reviewed, generated,
 or kept consistent.
 
 It can help teams by:
@@ -103,11 +106,15 @@ It can help teams by:
 
 The current version focuses on:
 
-- creating `.sct` files
+- creating `.sctree` files
 - storing project metadata
 - describing folders and files
 - adding files and folders through the CLI
 - removing files and folders from the tree
+- scanning an existing project into a `.sctree` document
+- updating a `.sctree` document from missing filesystem entries
+- ignoring scan paths with `.sctreeignore`
+- configuring filesystem behavior with `sctree.config.json`
 - rendering a terminal preview
 - rendering an HTML preview
 - supporting starter templates for selected language/framework pairs
@@ -118,23 +125,26 @@ C#, Rust, C++, Python, Go, Java, and others.
 
 ## CLI Shape
 
-The CLI is named `sct`.
+The CLI is named `sctree`.
 
 Common commands:
 
 ```bash
-sct init
-sct init -y
-sct add file users.controller.ts src/modules/users
-sct add folder users src/modules
-sct add users.controller.ts src/modules/users
-sct add folder -c users posts comments -d src/modules
-sct rm users.controller.ts
-sct render
-sct render --html
+sctree init
+sctree init -y
+sctree add file users.controller.ts src/modules/users
+sctree add folder users src/modules
+sctree add users.controller.ts src/modules/users
+sctree add folder -c users posts comments -d src/modules
+sctree rm users.controller.ts
+sctree scan
+sctree update
+sctree render
+sctree render --html
+sctree render --txt
 ```
 
-The shorthand `sct add <name> <location>` assumes the entry is a file.
+The shorthand `sctree add <name> <location>` assumes the entry is a file.
 
 ## Design Goals
 

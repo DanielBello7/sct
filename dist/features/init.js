@@ -1,5 +1,6 @@
 import { cancel, intro, isCancel, outro, select, text } from "@clack/prompts";
-import { displaySctPath, sctPathForProject } from "../libs/paths.js";
+import { displaySctreePath, sctreePathForProject } from "../libs/paths.js";
+import { ensureProjectSupportFiles } from "../libs/project-files.js";
 import { formatSctDocument } from "../libs/formatter.js";
 import { templateForMetadata } from "../libs/templates.js";
 import { DEFAULT_PROJECT_NAME, DEFAULT_PROJECT_TYPE, DEFAULT_LANGUAGE, DEFAULT_FRAMEWORK, DEFAULT_VERSION, PROJECT_TYPE_OPTIONS, LANGUAGE_OPTIONS, LANGUAGE_FRAMEWORK_OPTIONS, } from "../constants/index.js";
@@ -24,7 +25,7 @@ function getPromptValue(value) {
     return value;
 }
 async function askMetadata(options) {
-    intro(pc.bold("sct init"));
+    intro(pc.bold("sctree init"));
     if (options.yes) {
         const metadata = {
             name: options.name ?? DEFAULT_PROJECT_NAME,
@@ -87,8 +88,8 @@ async function askMetadata(options) {
 }
 async function init(options) {
     const metadata = await askMetadata(options);
-    const outputPath = sctPathForProject(metadata.name);
-    const outputFile = displaySctPath(metadata.name);
+    const outputPath = sctreePathForProject(metadata.name);
+    const outputFile = displaySctreePath(metadata.name);
     if (await fs.pathExists(outputPath)) {
         const stats = await fs.stat(outputPath);
         if (stats.size > 0) {
@@ -97,7 +98,11 @@ async function init(options) {
         }
     }
     await fs.outputFile(outputPath, createStarterSct(metadata), "utf8");
-    outro(pc.green(`Initialized ${outputFile}`));
+    const createdSupportFiles = await ensureProjectSupportFiles();
+    const supportFileMessage = createdSupportFiles.length > 0
+        ? ` with ${createdSupportFiles.join(", ")}`
+        : "";
+    outro(pc.green(`Initialized ${outputFile}${supportFileMessage}`));
 }
 export { init };
 //# sourceMappingURL=init.js.map

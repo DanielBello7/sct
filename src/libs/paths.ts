@@ -2,11 +2,11 @@ import { join, resolve } from "node:path";
 import { OUTPUT_DIR } from "@/constants";
 import fs from "fs-extra";
 
-function sctPathForProject(projectName: string) {
-	return resolve(process.cwd(), OUTPUT_DIR, `${projectName}.sct`);
+function sctreePathForProject(projectName: string) {
+	return resolve(process.cwd(), OUTPUT_DIR, `${projectName}.sctree`);
 }
 
-async function findSctPath() {
+async function findSctreePath() {
 	const outputDir = resolve(process.cwd(), OUTPUT_DIR);
 
 	if (!(await fs.pathExists(outputDir))) {
@@ -14,23 +14,23 @@ async function findSctPath() {
 	}
 
 	const entries = await fs.readdir(outputDir);
-	const sctFiles = entries.filter((entry) => entry.endsWith(".sct"));
+	const sctreeFiles = entries.filter((entry) => entry.endsWith(".sctree"));
 
-	if (sctFiles.length === 0) {
+	if (sctreeFiles.length === 0) {
 		return undefined;
 	}
 
-	if (sctFiles.length > 1) {
+	if (sctreeFiles.length > 1) {
 		throw new Error(
-			`Multiple .sct files found in ${outputDir}. Keep one active project file for now.`,
+			`Multiple .sctree files found in ${outputDir}. Keep one active project file for now.`,
 		);
 	}
 
-	return join(outputDir, sctFiles[0]!);
+	return join(outputDir, sctreeFiles[0]!);
 }
 
-function displaySctPath(projectName: string) {
-	return `${OUTPUT_DIR}/${projectName}.sct`;
+function displaySctreePath(projectName: string) {
+	return `${OUTPUT_DIR}/${projectName}.sctree`;
 }
 
-export { displaySctPath, findSctPath, sctPathForProject };
+export { displaySctreePath, findSctreePath, sctreePathForProject };

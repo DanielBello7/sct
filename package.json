@@ -1,9 +1,9 @@
 {
 	"name": "sctree-cli",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"type": "module",
 	"bin": {
-		"sct": "./bin/sct"
+		"sctree": "./bin/sctree"
 	},
 	"files": [
 		"bin",
@@ -12,14 +12,20 @@
 		"README.md"
 	],
 	"scripts": {
-		"sct:dev": "tsx -r tsconfig-paths/register src/app.ts",
-		"sct": "node dist/app.js",
-		"typecheck": "tsc --noEmit",
+		"sctree:dev": "tsx -r tsconfig-paths/register src/app.ts",
+		"sctree": "node dist/app.js",
+		"test": "mocha --node-option import=tsx \"__tests__/**/*.test.ts\"",
+		"test:build": "npm run build && npm test",
+		"typecheck": "tsc --noEmit && tsc -p tsconfig.test.json",
 		"build": "tsc && resolve-tspaths --out dist"
 	},
 	"devDependencies": {
+		"@types/chai": "^5.2.3",
 		"@types/fs-extra": "^11.0.4",
+		"@types/mocha": "^10.0.10",
 		"@types/node": "^25.9.3",
+		"chai": "^6.2.2",
+		"mocha": "^11.7.6",
 		"resolve-tspaths": "^0.8.23",
 		"tsconfig-paths": "^4.2.0",
 		"tsx": "^4.22.4",

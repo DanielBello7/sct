@@ -1,19 +1,24 @@
-# SCT v2 Specification
+# SCTree v2 Specification
 
 ## Identity
 
-Language name: Software Construction Tree
+System name: Software Construction Tree
 
-Short name: SCT
+System short name: SCT
 
-File extension: `.sct`
+Language name: SCTree
+
+CLI command: `sctree`
+
+File extension: `.sctree`
 
 Default output directory: `.out`
 
 ## Purpose
 
-An SCT document describes the intended folder and file structure of a software
-project. The document is both a source artifact and a renderable preview target.
+An SCTree document describes the intended folder and file structure of a software
+project inside the Software Construction Tree design system. The document is both
+a source artifact and a renderable preview target.
 
 The source file should remain plain, deterministic, and easy to edit by hand.
 
@@ -51,7 +56,7 @@ Metadata values are quoted strings.
 
 The equals sign should be aligned using the formatter.
 
-```sct
+```sctree
 name                    = "Project"
 type                    = "none"
 language                = "typescript"
@@ -63,9 +68,9 @@ description             = "A planned project structure."
 
 ### Default Metadata
 
-When `sct init -y` is used, missing metadata uses these defaults:
+When `sctree init -y` is used, missing metadata uses these defaults:
 
-```sct
+```sctree
 name                    = "Project"
 type                    = "none"
 language                = "typescript"
@@ -77,7 +82,7 @@ version                 = "0.1.0"
 
 ## Structure Keywords
 
-SCT v2 has three structure keywords:
+SCTree v2 has three structure keywords:
 
 1. `root`
 2. `folder`
@@ -91,9 +96,9 @@ SCT v2 has three structure keywords:
 
 ## Tree Syntax
 
-Every SCT document must contain exactly one root declaration.
+Every SCTree document must contain exactly one root declaration.
 
-```sct
+```sctree
 root Project {
   file .gitignore
   folder src {
@@ -108,7 +113,7 @@ Files cannot contain children.
 
 ## Complete Example
 
-```sct
+```sctree
 name                    = "BlogApi"
 type                    = "service"
 language                = "typescript"
@@ -161,7 +166,7 @@ Within every folder:
 
 Example:
 
-```sct
+```sctree
 root Project {
   file .gitignore
   file package.json
@@ -193,7 +198,7 @@ Lines beginning with `#` are comments.
 
 Comments are ignored by the parser.
 
-```sct
+```sctree
 # This is ignored.
 root Project {
   file package.json
@@ -215,12 +220,12 @@ The parser guarantees:
 
 ## Renderer Behavior
 
-SCT documents may be rendered in multiple presentation formats.
+SCTree documents may be rendered in multiple presentation formats.
 
 Terminal render:
 
 ```bash
-sct render
+sctree render
 ```
 
 Example output:
@@ -235,7 +240,7 @@ Project
 HTML render:
 
 ```bash
-sct render --html
+sctree render --html
 ```
 
 The HTML preview shows:
@@ -252,24 +257,30 @@ table.
 
 ### Init
 
-`sct init` starts the interactive project setup.
+`sctree init` starts the interactive project setup.
 
 ```bash
-sct init
+sctree init
 ```
 
-`sct init -y` skips prompts and uses defaults for missing options.
+`init` creates:
+
+1. a `.sctree` document in `.out/`
+2. a `.sctreeignore` file in the project root
+3. a `sctree.config.json` file in the project root
+
+`sctree init -y` skips prompts and uses defaults for missing options.
 
 ```bash
-sct init -y
-sct init --yes
-sct init --y
+sctree init -y
+sctree init --yes
+sctree init --y
 ```
 
 Options may override defaults:
 
 ```bash
-sct init -y --name ApiProject --language csharp --framework aspnet-core
+sctree init -y --name ApiProject --language csharp --framework aspnet-core
 ```
 
 ### Add
@@ -277,44 +288,132 @@ sct init -y --name ApiProject --language csharp --framework aspnet-core
 Files may be added explicitly:
 
 ```bash
-sct add file users.controller.ts src/modules/users
+sctree add file users.controller.ts src/modules/users
 ```
 
 Folders may be added explicitly:
 
 ```bash
-sct add folder users src/modules
+sctree add folder users src/modules
 ```
 
 The shorthand add form assumes `file`:
 
 ```bash
-sct add users.controller.ts src/modules/users
+sctree add users.controller.ts src/modules/users
 ```
 
 Multiple entries may be added with `--content` and `--destination`.
 
 ```bash
-sct add file -c users.controller.ts users.service.ts -d src/modules/users
-sct add folder -c users posts comments -d src/modules
+sctree add file -c users.controller.ts users.service.ts -d src/modules/users
+sctree add folder -c users posts comments -d src/modules
 ```
+
+By default, `add` only updates the `.sctree` document. It creates real files or
+folders only when `filesystem.applyOnAdd` is enabled in `sctree.config.json`.
 
 ### Remove
 
 Remove all matching entries by name:
 
 ```bash
-sct rm users.controller.ts
+sctree rm users.controller.ts
 ```
 
 Remove a matching entry under a specific folder:
 
 ```bash
-sct rm users.controller.ts src/modules/users
+sctree rm users.controller.ts src/modules/users
 ```
 
-If the target is a folder, the folder and its contents are removed from the SCT
-tree.
+If the target is a folder, the folder and its contents are removed from the
+SCTree document tree.
+
+By default, `rm` only updates the `.sctree` document. It removes real files or
+folders only when `filesystem.applyOnRemove` is enabled in `sctree.config.json`.
+
+### Scan
+
+Generate a `.sctree` document from the current project structure:
+
+```bash
+sctree scan
+```
+
+Set metadata while scanning:
+
+```bash
+sctree scan --name ApiProject --language csharp --framework aspnet-core
+```
+
+Overwrite an existing generated file:
+
+```bash
+sctree scan --force
+```
+
+`scan` reads the current working directory and writes a new `.sctree` file to
+`.out/`.
+
+### Update
+
+Add missing filesystem entries to the active `.sctree` document:
+
+```bash
+sctree update
+```
+
+`update` scans the current working directory, compares it with the active `.sctree`
+document, and adds entries that exist on disk but are missing from the document.
+It does not remove extra entries from the `.sctree` document.
+
+## Ignore Rules
+
+`.sctreeignore` controls paths ignored by `scan` and `update`.
+
+```text
+node_modules
+dist
+build
+coverage
+.out
+```
+
+Lines beginning with `#` are comments.
+
+SCT also ignores common generated paths by default:
+
+- `.git`
+- `.DS_Store`
+- `.out`
+- `node_modules`
+- `dist`
+- `build`
+- `coverage`
+
+## Config Rules
+
+`sctree.config.json` controls project-level SCT behavior.
+
+Default config:
+
+```json
+{
+  "filesystem": {
+    "applyOnAdd": false,
+    "applyOnRemove": false
+  }
+}
+```
+
+When `applyOnAdd` is `true`, `sctree add` also creates the requested files or
+folders on disk.
+
+When `applyOnRemove` is `true`, `sctree rm` also removes matching files or folders
+from disk.
+
+Both options default to `false`.
 
 ## Template Rules
 

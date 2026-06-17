@@ -4,6 +4,8 @@ import { addMany, type AddKind } from "@/features/add";
 import { init } from "@/features/init";
 import { render, type RenderOptions } from "@/features/render";
 import { rm } from "@/features/rm";
+import { scan, type ScanOptions } from "@/features/scan";
+import { update } from "@/features/update";
 
 const program = new Command();
 
@@ -58,9 +60,9 @@ async function addFromInput(
 }
 
 program
-	.name("sct")
+	.name("sctree")
 	.description("Create and maintain Software Construction Tree files.")
-	.version("0.1.0", "-V, --cli-version", "Output the sct CLI version.");
+	.version("0.2.0", "-V, --cli-version", "Output the sctree CLI version.");
 
 /**
  * the options just collect the required information from the cli
@@ -68,7 +70,7 @@ program
  */
 program
 	.command("init")
-	.description("Start a new .sct project definition.")
+	.description("Start a new .sctree project definition.")
 	.option("--name <name>", "Project/root folder name")
 	.option("--type <type>", "Project type")
 	.option("--language <language>", "Project language")
@@ -84,7 +86,7 @@ program
 
 const addCommand = program
 	.command("add")
-	.description("Add file or folder entries to the .sct document tree.")
+	.description("Add file or folder entries to the .sctree document tree.")
 	.argument("[name]", "File name to add")
 	.argument("[target]", "Folder path, or name when using file/folder kind")
 	.argument("[location]", "Folder path when using file/folder kind")
@@ -107,7 +109,7 @@ const addCommand = program
 
 program
 	.command("rm")
-	.description("Remove file or folder entries from the .sct document tree.")
+	.description("Remove file or folder entries from the .sctree document tree.")
 	.argument("<name>", "File or folder name to remove")
 	.argument("[location]", "Optional folder path to remove from")
 	.action(async (name: string, location?: string) => {
@@ -115,8 +117,30 @@ program
 	});
 
 program
+	.command("scan")
+	.description("Scan the current project and generate a .sctree document.")
+	.option("--name <name>", "Project/root folder name")
+	.option("--type <type>", "Project type")
+	.option("--language <language>", "Project language")
+	.option("--framework <framework>", "Project framework")
+	.option("--version <version>", "Project version")
+	.option("--author <author>", "Project author")
+	.option("--description <description>", "Project description")
+	.option("--force", "Overwrite an existing generated .sctree file")
+	.action(async (options: ScanOptions) => {
+		await scan(options);
+	});
+
+program
+	.command("update")
+	.description("Scan the project and add missing entries to the active .sctree document.")
+	.action(async () => {
+		await update();
+	});
+
+program
 	.command("render")
-	.description("Render the .sct document tree.")
+	.description("Render the .sctree document tree.")
 	.option("--html", "Render an HTML preview file")
 	.option("--txt", "Render a text preview file")
 	.action(async (options: RenderOptions) => {

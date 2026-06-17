@@ -1,4 +1,4 @@
-import type { TreeNode } from "./sct";
+import type { TreeNode } from "./sctree";
 
 function locationParts(location: string, rootName: string) {
 	const parts = location

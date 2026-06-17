@@ -1,4 +1,4 @@
-import type { TreeNode } from "./sct";
+import type { TreeNode } from "./sctree";
 import { basicTemplate } from "@/templates/basic";
 import { csharpAspnetCoreTemplate } from "@/templates/csharp/aspnet-core/index";
 import { javascriptNodeTemplate } from "@/templates/javascript/node/index";

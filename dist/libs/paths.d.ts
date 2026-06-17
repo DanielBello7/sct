@@ -1,5 +1,5 @@
-declare function sctPathForProject(projectName: string): string;
-declare function findSctPath(): Promise<string | undefined>;
-declare function displaySctPath(projectName: string): string;
-export { displaySctPath, findSctPath, sctPathForProject };
+declare function sctreePathForProject(projectName: string): string;
+declare function findSctreePath(): Promise<string | undefined>;
+declare function displaySctreePath(projectName: string): string;
+export { displaySctreePath, findSctreePath, sctreePathForProject };
 //# sourceMappingURL=paths.d.ts.map
