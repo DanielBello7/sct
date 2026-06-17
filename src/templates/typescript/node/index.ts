@@ -1,4 +1,4 @@
-import { file, folder, type TreeNode } from "@/templates/utils.ts";
+import { file, folder, type TreeNode } from "@/templates/utils";
 
 export function typescriptNodeTemplate(projectName: string): TreeNode {
 	return folder(projectName, [

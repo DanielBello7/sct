@@ -1,0 +1,1 @@
+{"version":3,"file":"basic.js","sourceRoot":"","sources":["../../src/templates/basic.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,IAAI,EAAE,MAAM,EAAE,MAAM,SAAS,CAAC;AAEvC,MAAM,UAAU,aAAa,CAAC,WAAmB;IAChD,OAAO,MAAM,CAAC,WAAW,EAAE,CAAC,IAAI,CAAC,YAAY,CAAC,EAAE,MAAM,CAAC,KAAK,CAAC,CAAC,CAAC,CAAC;AACjE,CAAC"}

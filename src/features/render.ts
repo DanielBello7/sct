@@ -1,39 +1,37 @@
 import { cancel, intro, outro } from "@clack/prompts";
+import { findSctPath } from "@/libs/paths";
+import { renderTree } from "@/libs/render-tree";
+import { parseSct } from "@/libs/sct";
 import fs from "fs-extra";
 import pc from "picocolors";
-import { findSctreePath } from "@/libs/paths.ts";
-import { renderTree } from "@/libs/render-tree.ts";
-import { parseSctree } from "@/libs/sctree.ts";
 
 export async function render() {
-	intro(pc.bold("sctree render"));
+	intro(pc.bold("sct render"));
 
 	let outputPath: string | undefined;
 
 	try {
-		outputPath = await findSctreePath();
+		outputPath = await findSctPath();
 	} catch (error) {
 		const message =
-			error instanceof Error ? error.message : "Could not locate .sctree file.";
+			error instanceof Error ? error.message : "Could not locate .sct file.";
 		cancel(message);
 		process.exit(1);
 	}
 
 	if (!outputPath) {
-		console.error(
-			pc.red("No .sctree file found in out/. Run `sctree init` first."),
-		);
+		console.error(pc.red("No .sct file found in out/. Run `sct init` first."));
 		process.exit(1);
 	}
 
 	const source = await fs.readFile(outputPath, "utf8");
-	let parsed: ReturnType<typeof parseSctree>;
+	let parsed: ReturnType<typeof parseSct>;
 
 	try {
-		parsed = parseSctree(source);
+		parsed = parseSct(source);
 	} catch (error) {
 		const message =
-			error instanceof Error ? error.message : "Invalid .sctree file.";
+			error instanceof Error ? error.message : "Invalid .sct file.";
 		cancel(message);
 		process.exit(1);
 	}

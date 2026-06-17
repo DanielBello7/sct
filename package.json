@@ -1,13 +1,14 @@
 {
-	"name": "sctree",
+	"name": "sct",
 	"version": "0.1.0",
 	"private": true,
 	"type": "module",
 	"bin": {
-		"sctree": "./bin/sctree"
+		"sct": "./bin/sct"
 	},
 	"scripts": {
-		"sctree": "node --no-warnings --experimental-strip-types --loader ./src/alias-loader.mjs ./src/app.ts",
+		"sct:dev": "tsx -r tsconfig-paths/register src/app.ts",
+		"sct": "node dist/app.js",
 		"typecheck": "tsc --noEmit",
 		"build": "tsc && resolve-tspaths --out dist"
 	},
@@ -15,6 +16,7 @@
 		"@types/fs-extra": "^11.0.4",
 		"@types/node": "^25.9.3",
 		"resolve-tspaths": "^0.8.23",
+		"tsconfig-paths": "^4.2.0",
 		"tsx": "^4.22.4",
 		"typescript": "^6.0.3"
 	},

@@ -1,2 +1,0 @@
-#!/usr/bin/env sh
-node --no-warnings --experimental-strip-types --loader "$(dirname "$0")/../src/alias-loader.mjs" "$(dirname "$0")/../src/app.ts" "$@"

@@ -1,0 +1,87 @@
+import { cancel, intro, isCancel, outro, select, text } from "@clack/prompts";
+import { displaySctPath, sctPathForProject } from "../libs/paths.js";
+import { formatSctDocument } from "../libs/formatter.js";
+import { templateForMetadata } from "../libs/templates.js";
+import { DEFAULT_PROJECT_NAME, DEFAULT_PROJECT_TYPE, DEFAULT_LANGUAGE, DEFAULT_FRAMEWORK, DEFAULT_VERSION, PROJECT_TYPE_OPTIONS, LANGUAGE_OPTIONS, LANGUAGE_FRAMEWORK_OPTIONS, } from "../constants/index.js";
+import fs from "fs-extra";
+import pc from "picocolors";
+function createStarterSct(metadata) {
+    const root = templateForMetadata(metadata);
+    return formatSctDocument(metadata, root);
+}
+function frameworksForLanguage(language) {
+    return (LANGUAGE_FRAMEWORK_OPTIONS.find((entry) => entry.language === language)
+        ?.frameworks ?? [{ value: DEFAULT_FRAMEWORK, label: "None" }]);
+}
+function isSupportedFramework(language, framework) {
+    return frameworksForLanguage(language).some((option) => option.value === framework);
+}
+function getPromptValue(value) {
+    if (isCancel(value)) {
+        cancel("Initialization cancelled.");
+        process.exit(0);
+    }
+    return value;
+}
+async function askMetadata(options) {
+    intro(pc.bold("sct init"));
+    const name = options.name ??
+        getPromptValue(await text({
+            message: "Project name",
+            placeholder: DEFAULT_PROJECT_NAME,
+            defaultValue: DEFAULT_PROJECT_NAME,
+        }));
+    const type = options.type ??
+        getPromptValue(await select({
+            message: "Project type",
+            options: [...PROJECT_TYPE_OPTIONS],
+            initialValue: DEFAULT_PROJECT_TYPE,
+        }));
+    const language = options.language ??
+        getPromptValue(await select({
+            message: "Language",
+            options: [...LANGUAGE_OPTIONS],
+            initialValue: DEFAULT_LANGUAGE,
+        }));
+    const framework = options.framework ??
+        getPromptValue(await select({
+            message: "Framework",
+            options: [...frameworksForLanguage(language)],
+            initialValue: DEFAULT_FRAMEWORK,
+        }));
+    if (!isSupportedFramework(language, framework)) {
+        cancel(`${framework} is not configured as a ${language} framework.`);
+        process.exit(1);
+    }
+    const version = options.version ??
+        getPromptValue(await text({
+            message: "Version",
+            placeholder: DEFAULT_VERSION,
+            defaultValue: DEFAULT_VERSION,
+        }));
+    return {
+        name,
+        type,
+        language,
+        framework,
+        version,
+        author: options.author ?? "",
+        description: options.description ?? "",
+    };
+}
+async function init(options) {
+    const metadata = await askMetadata(options);
+    const outputPath = sctPathForProject(metadata.name);
+    const outputFile = displaySctPath(metadata.name);
+    if (await fs.pathExists(outputPath)) {
+        const stats = await fs.stat(outputPath);
+        if (stats.size > 0) {
+            console.error(pc.red(`Refusing to overwrite existing file: ${outputPath}`));
+            process.exit(1);
+        }
+    }
+    await fs.outputFile(outputPath, createStarterSct(metadata), "utf8");
+    outro(pc.green(`Initialized ${outputFile}`));
+}
+export { init };
+//# sourceMappingURL=init.js.map

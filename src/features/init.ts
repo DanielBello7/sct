@@ -1,76 +1,24 @@
 import { cancel, intro, isCancel, outro, select, text } from "@clack/prompts";
-import { displaySctreePath, sctreePathForProject } from "@/libs/paths.ts";
-import { serializeRoot } from "@/libs/sctree.ts";
-import { templateForMetadata } from "@/libs/templates.ts";
+import { displaySctPath, sctPathForProject } from "@/libs/paths";
+import { formatSctDocument } from "@/libs/formatter";
+import { templateForMetadata } from "@/libs/templates";
+import {
+	DEFAULT_PROJECT_NAME,
+	DEFAULT_PROJECT_TYPE,
+	DEFAULT_LANGUAGE,
+	DEFAULT_FRAMEWORK,
+	DEFAULT_VERSION,
+	PROJECT_TYPE_OPTIONS,
+	LANGUAGE_OPTIONS,
+	LANGUAGE_FRAMEWORK_OPTIONS,
+} from "@/constants";
 import fs from "fs-extra";
 import pc from "picocolors";
+import type { InitOptions, ProjectMetadata } from "@/types";
 
-const DEFAULT_PROJECT_NAME = "TL";
-const DEFAULT_PROJECT_TYPE = "application";
-const DEFAULT_LANGUAGE = "typescript";
-const DEFAULT_FRAMEWORK = "none";
-const DEFAULT_VERSION = "0.1.0";
-const METADATA_KEY_WIDTH = 12;
-
-const PROJECT_TYPE_OPTIONS = [
-	{ value: "application", label: "Application" },
-	{ value: "library", label: "Library" },
-	{ value: "service", label: "Service" },
-	{ value: "tool", label: "Tool" },
-] as const;
-
-const LANGUAGE_OPTIONS = [
-	{ value: "typescript", label: "TypeScript" },
-	{ value: "javascript", label: "JavaScript" },
-] as const;
-
-const LANGUAGE_FRAMEWORK_OPTIONS = [
-	{
-		language: "typescript",
-		frameworks: [
-			{ value: "none", label: "None" },
-			{ value: "node", label: "Node.js" },
-			{ value: "express", label: "Express" },
-			{ value: "nestjs", label: "NestJS" },
-			{ value: "react", label: "React" },
-		],
-	},
-	{
-		language: "javascript",
-		frameworks: [
-			{ value: "none", label: "None" },
-			{ value: "node", label: "Node.js" },
-			{ value: "express", label: "Express" },
-			{ value: "react", label: "React" },
-		],
-	},
-] as const;
-
-export type ProjectMetadata = {
-	name: string;
-	type: string;
-	language: string;
-	framework: string;
-	version: string;
-};
-
-export type InitOptions = Partial<ProjectMetadata>;
-
-function createStarterSctree(metadata: ProjectMetadata) {
+function createStarterSct(metadata: ProjectMetadata) {
 	const root = templateForMetadata(metadata);
-
-	return `${formatMetadataLine("name", metadata.name)}
-${formatMetadataLine("type", metadata.type)}
-${formatMetadataLine("language", metadata.language)}
-${formatMetadataLine("framework", metadata.framework)}
-${formatMetadataLine("version", metadata.version)}
-
-${serializeRoot(root).join("\n")}
-`;
-}
-
-function formatMetadataLine(key: keyof ProjectMetadata, value: string) {
-	return `${key.padEnd(METADATA_KEY_WIDTH)}= ${value}`;
+	return formatSctDocument(metadata, root);
 }
 
 function frameworksForLanguage(language: string) {
@@ -95,8 +43,8 @@ function getPromptValue<T>(value: T | symbol): T {
 	return value;
 }
 
-async function askMetadata(options: InitOptions) {
-	intro(pc.bold("sctree init"));
+async function askMetadata(options: InitOptions): Promise<ProjectMetadata> {
+	intro(pc.bold("sct init"));
 
 	const name =
 		options.name ??
@@ -159,13 +107,15 @@ async function askMetadata(options: InitOptions) {
 		language,
 		framework,
 		version,
+		author: options.author ?? "",
+		description: options.description ?? "",
 	};
 }
 
-export async function init(options: InitOptions) {
+async function init(options: InitOptions) {
 	const metadata = await askMetadata(options);
-	const outputPath = sctreePathForProject(metadata.name);
-	const outputFile = displaySctreePath(metadata.name);
+	const outputPath = sctPathForProject(metadata.name);
+	const outputFile = displaySctPath(metadata.name);
 
 	if (await fs.pathExists(outputPath)) {
 		const stats = await fs.stat(outputPath);
@@ -178,6 +128,8 @@ export async function init(options: InitOptions) {
 		}
 	}
 
-	await fs.outputFile(outputPath, createStarterSctree(metadata), "utf8");
+	await fs.outputFile(outputPath, createStarterSct(metadata), "utf8");
 	outro(pc.green(`Initialized ${outputFile}`));
 }
+
+export { init };

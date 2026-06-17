@@ -4,12 +4,35 @@ export type TreeNode = {
 	children: TreeNode[];
 };
 
-export type SctreeAst = {
+const RESERVED_KEYWORDS = new Set([
+	"name",
+	"type",
+	"language",
+	"framework",
+	"version",
+	"author",
+	"root",
+	"file",
+	"folder",
+	"description",
+]);
+
+export type SctAst = {
 	metadataLines: string[];
 	root: TreeNode;
 };
 
-export function parseSctree(source: string): SctreeAst {
+function assertIdentifier(name: string, kind: "file" | "folder") {
+	if (RESERVED_KEYWORDS.has(name)) {
+		throw new Error(`${kind} identifier cannot use reserved keyword: ${name}`);
+	}
+
+	if (kind === "folder" && !/^[A-Za-z0-9_.-]+$/.test(name)) {
+		throw new Error(`Invalid folder identifier: ${name}`);
+	}
+}
+
+export function parseSct(source: string): SctAst {
 	const lines = source.split(/\r?\n/);
 	const metadataLines: string[] = [];
 	const stack: TreeNode[] = [];
@@ -19,20 +42,23 @@ export function parseSctree(source: string): SctreeAst {
 	for (const line of lines) {
 		const trimmed = line.trim();
 
-		if (!trimmed) {
+		if (!trimmed || trimmed.startsWith("#")) {
 			continue;
 		}
 
-		const folderMatch = trimmed.match(/^(root\s+)?folder\s+(.+?)\s*\{$/);
+		const rootMatch = trimmed.match(/^root\s+(.+?)\s*\{$/);
+		const folderMatch = trimmed.match(/^folder\s+(.+?)\s*\{$/);
 		const fileMatch = trimmed.match(/^file\s+(.+)$/);
 
-		if (folderMatch) {
+		if (rootMatch || folderMatch) {
 			hasTree = true;
-			const isRoot = Boolean(folderMatch[1]);
+			const isRoot = Boolean(rootMatch);
+			const name = (rootMatch?.[1] ?? folderMatch?.[1] ?? "").trim();
+			assertIdentifier(name, "folder");
 
 			const folder: TreeNode = {
 				type: "folder",
-				name: folderMatch[2].trim(),
+				name,
 				children: [],
 			};
 			const parent = stack.at(-1);
@@ -50,7 +76,7 @@ export function parseSctree(source: string): SctreeAst {
 			} else if (isRoot) {
 				root = folder;
 			} else {
-				throw new Error("Top-level folders must use `root folder`.");
+				throw new Error("Top-level folders must use `root`.");
 			}
 
 			stack.push(folder);
@@ -59,6 +85,8 @@ export function parseSctree(source: string): SctreeAst {
 
 		if (fileMatch) {
 			hasTree = true;
+			const name = (fileMatch[1] ?? "").trim();
+			assertIdentifier(name, "file");
 
 			const parent = stack.at(-1);
 
@@ -68,7 +96,7 @@ export function parseSctree(source: string): SctreeAst {
 
 			parent.children.push({
 				type: "file",
-				name: fileMatch[1].trim(),
+				name,
 				children: [],
 			});
 			continue;
@@ -83,8 +111,15 @@ export function parseSctree(source: string): SctreeAst {
 		}
 
 		if (!hasTree) {
+			if (!trimmed.match(/^(name|type|language|framework|version|author|description)\s*=/)) {
+				throw new Error(`Unknown keyword or invalid metadata line: ${trimmed}`);
+			}
+
 			metadataLines.push(trimmed);
+			continue;
 		}
+
+		throw new Error(`Unknown keyword or invalid syntax: ${trimmed}`);
 	}
 
 	if (stack.length > 0) {
@@ -92,35 +127,8 @@ export function parseSctree(source: string): SctreeAst {
 	}
 
 	if (!root) {
-		throw new Error("No root folder found. Run `sctree init` first.");
+		throw new Error("No root folder found. Run `sct init` first.");
 	}
 
 	return { metadataLines, root };
-}
-
-export function serializeNode(node: TreeNode, depth = 0): string[] {
-	const indent = "  ".repeat(depth);
-
-	if (node.type === "file") {
-		return [`${indent}file ${node.name}`];
-	}
-
-	return [
-		`${indent}folder ${node.name} {`,
-		...node.children.flatMap((child) => serializeNode(child, depth + 1)),
-		`${indent}}`,
-	];
-}
-
-export function serializeRoot(root: TreeNode) {
-	return [
-		`root folder ${root.name} {`,
-		...root.children.flatMap((child) => serializeNode(child, 1)),
-		"}",
-	];
-}
-
-export function serializeSctree(metadataLines: string[], root: TreeNode) {
-	return `${metadataLines.join("\n")}\n\n${serializeRoot(root)
-		.join("\n")}\n`;
 }

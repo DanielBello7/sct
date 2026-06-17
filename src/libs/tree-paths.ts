@@ -1,6 +1,6 @@
-import type { TreeNode } from "./sctree.ts";
+import type { TreeNode } from "./sct";
 
-export function locationParts(location: string, rootName: string) {
+function locationParts(location: string, rootName: string) {
 	const parts = location
 		.split("/")
 		.map((part) => part.trim())
@@ -17,7 +17,7 @@ export function locationParts(location: string, rootName: string) {
 	return parts;
 }
 
-export function findFolder(root: TreeNode, location: string) {
+function findFolder(root: TreeNode, location: string) {
 	const parts = locationParts(location, root.name);
 	let current = root;
 
@@ -36,7 +36,7 @@ export function findFolder(root: TreeNode, location: string) {
 	return current;
 }
 
-export function findOrCreateFolder(parent: TreeNode, name: string) {
+function findOrCreateFolder(parent: TreeNode, name: string) {
 	const existing = parent.children.find(
 		(child) => child.type === "folder" && child.name === name,
 	);
@@ -49,3 +49,5 @@ export function findOrCreateFolder(parent: TreeNode, name: string) {
 	parent.children.push(folder);
 	return folder;
 }
+
+export { locationParts, findFolder, findOrCreateFolder };

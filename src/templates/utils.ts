@@ -1,4 +1,4 @@
-import type { TreeNode } from "@/libs/sctree.ts";
+import type { TreeNode } from "@/libs/sct";
 
 export type { TreeNode };
 

@@ -1,4 +1,4 @@
-import type { TreeNode } from "@/libs/sctree.ts";
+import type { TreeNode } from "@/libs/sct";
 
 export function renderTree(root: TreeNode) {
 	return [root.name, ...renderChildren(root.children, "")].join("\n");
