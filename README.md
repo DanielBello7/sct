@@ -215,10 +215,10 @@ is called.
 
 ```json
 {
-  "filesystem": {
-    "applyOnAdd": false,
-    "applyOnRemove": false
-  }
+	"filesystem": {
+		"applyOnAdd": false,
+		"applyOnRemove": false
+	}
 }
 ```
 
@@ -262,35 +262,3 @@ direction, see:
 
 - [SCTree intro](docs/intro.v2.md)
 - [SCTree v2 specification](docs/rules.v2.md)
-
-## Publishing
-
-The npm package is `sctree-cli`, but the installed command is `sctree`.
-
-Before publishing, run:
-
-```bash
-pnpm run typecheck
-pnpm run test:build
-npm pack --dry-run
-```
-
-Publish by creating a version tag:
-
-```bash
-git tag v0.2.0
-git push origin v0.2.0
-```
-
-The GitHub Actions workflow verifies the package and publishes it to npm using
-the `NPM_TOKEN` repository secret. After release, users can run:
-
-```bash
-npx sctree-cli init
-```
-
-## Status
-
-SCTree is early and evolving. The current release focuses on project metadata,
-files, folders, templates, add/remove commands, project scanning, updating, and
-preview rendering.
