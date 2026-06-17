@@ -12,7 +12,7 @@ to exist on disk.
 ## Installation
 
 ```bash
-npm install -g sct
+npm install -g sctree
 ```
 
 After installation, the CLI is available as:
