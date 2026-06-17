@@ -182,4 +182,4 @@ direction, see:
 ## Status
 
 SCT is early and evolving. The current release focuses on project metadata,
-files, folders, templates, add/remove commands, and preview rendering.
+files, folders, templates, add/remove commands, and preview rendering..
