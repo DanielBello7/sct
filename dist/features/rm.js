@@ -1,4 +1,5 @@
 import { cancel, intro, outro } from "@clack/prompts";
+import { OUTPUT_DIR } from "../constants/index.js";
 import { formatSctAst } from "../libs/formatter.js";
 import { findSctPath } from "../libs/paths.js";
 import { parseSct } from "../libs/sct.js";
@@ -45,7 +46,7 @@ async function rm(name, location) {
         process.exit(1);
     }
     if (!outputPath) {
-        console.error(pc.red("No .sct file found in out/. Run `sct init` first."));
+        console.error(pc.red(`No .sct file found in ${OUTPUT_DIR}/. Run \`sct init\` first.`));
         process.exit(1);
     }
     const source = await fs.readFile(outputPath, "utf8");

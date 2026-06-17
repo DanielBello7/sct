@@ -1,11 +1,15 @@
 import { formatSctAst } from "../libs/formatter.js";
 import { parseSct } from "../libs/sct.js";
 import { cancel, intro, outro } from "@clack/prompts";
+import { OUTPUT_DIR } from "../constants/index.js";
 import { findSctPath } from "../libs/paths.js";
 import { findOrCreateFolder, locationParts } from "../libs/tree-paths.js";
 import fs from "fs-extra";
 import pc from "picocolors";
-export async function add(filename, location) {
+export async function add(name, location, kind = "file") {
+    await addMany([name], location, kind);
+}
+export async function addMany(names, location, kind = "file") {
     intro(pc.bold("sct add"));
     let outputPath;
     try {
@@ -17,7 +21,7 @@ export async function add(filename, location) {
         process.exit(1);
     }
     if (!outputPath) {
-        console.error(pc.red("No .sct file found in out/. Run `sct init` first."));
+        console.error(pc.red(`No .sct file found in ${OUTPUT_DIR}/. Run \`sct init\` first.`));
         process.exit(1);
     }
     const source = await fs.readFile(outputPath, "utf8");
@@ -35,13 +39,23 @@ export async function add(filename, location) {
     for (const part of parts) {
         current = findOrCreateFolder(current, part);
     }
-    const existingFile = current.children.find((child) => child.type === "file" && child.name === filename);
-    if (existingFile) {
-        outro(pc.yellow(`${filename} already exists in ${location}`));
+    const added = [];
+    const skipped = [];
+    for (const name of names) {
+        const existingEntry = current.children.find((child) => child.name === name);
+        if (existingEntry) {
+            skipped.push(name);
+            continue;
+        }
+        current.children.push({ type: kind, name, children: [] });
+        added.push(name);
+    }
+    if (added.length === 0) {
+        outro(pc.yellow(`No entries added. Already exists: ${skipped.join(", ")}`));
         return;
     }
-    current.children.push({ type: "file", name: filename, children: [] });
     await fs.writeFile(outputPath, formatSctAst(parsed), "utf8");
-    outro(pc.green(`Added ${filename} to ${location}`));
+    const skippedMessage = skipped.length > 0 ? pc.yellow(` Skipped: ${skipped.join(", ")}`) : "";
+    outro(pc.green(`Added ${added.length} ${kind}${added.length === 1 ? "" : "s"} to ${location}.`) + skippedMessage);
 }
 //# sourceMappingURL=add.js.map

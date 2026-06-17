@@ -46,6 +46,27 @@ function getPromptValue<T>(value: T | symbol): T {
 async function askMetadata(options: InitOptions): Promise<ProjectMetadata> {
 	intro(pc.bold("sct init"));
 
+	if (options.yes) {
+		const metadata = {
+			name: options.name ?? DEFAULT_PROJECT_NAME,
+			type: options.type ?? DEFAULT_PROJECT_TYPE,
+			language: options.language ?? DEFAULT_LANGUAGE,
+			framework: options.framework ?? DEFAULT_FRAMEWORK,
+			version: options.version ?? DEFAULT_VERSION,
+			author: options.author ?? "",
+			description: options.description ?? "",
+		};
+
+		if (!isSupportedFramework(metadata.language, metadata.framework)) {
+			cancel(
+				`${metadata.framework} is not configured as a ${metadata.language} framework.`,
+			);
+			process.exit(1);
+		}
+
+		return metadata;
+	}
+
 	const name =
 		options.name ??
 		getPromptValue(

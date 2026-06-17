@@ -8,7 +8,10 @@ type ProjectMetadata = {
 	description?: string;
 };
 
-type InitOptions = Partial<ProjectMetadata>;
+type InitOptions = Partial<ProjectMetadata> & {
+	yes?: boolean;
+	y?: boolean;
+};
 
 type MetadataKey = Extract<keyof ProjectMetadata, string>;
 

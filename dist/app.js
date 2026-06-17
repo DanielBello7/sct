@@ -1,9 +1,38 @@
 import { Command } from "commander";
-import { add } from "./features/add.js";
+import { addMany } from "./features/add.js";
 import { init } from "./features/init.js";
 import { render } from "./features/render.js";
 import { rm } from "./features/rm.js";
 const program = new Command();
+function resolveAddInput(kindOrName, nameOrLocation, locationArg, options) {
+    const hasKind = kindOrName === "file" || kindOrName === "folder";
+    const kind = hasKind ? kindOrName : "file";
+    const name = hasKind ? nameOrLocation : kindOrName;
+    const location = hasKind ? locationArg : nameOrLocation;
+    const usesBatch = Boolean(options.content || options.destination);
+    if (usesBatch) {
+        if (!options.content?.length || !options.destination) {
+            throw new Error("Use both --content and --destination for batch add.");
+        }
+        return {
+            kind,
+            names: options.content,
+            location: options.destination,
+        };
+    }
+    if (!name || !location) {
+        throw new Error("Provide <name> <location> or use --content with --destination.");
+    }
+    return {
+        kind,
+        names: [name],
+        location,
+    };
+}
+async function addFromInput(kindOrName, nameOrLocation, location, options) {
+    const input = resolveAddInput(kindOrName, nameOrLocation, location, options);
+    await addMany(input.names, input.location, input.kind);
+}
 program
     .name("sct")
     .description("Create and maintain Software Construction Tree files.")
@@ -22,16 +51,27 @@ program
     .option("--version <version>", "Project version")
     .option("--author <author>", "Project author")
     .option("--description <description>", "Project description")
+    .option("-y, --yes", "Skip prompts and use defaults for missing options")
+    .option("--y", "Alias for --yes")
     .action(async (options) => {
-    await init(options);
+    await init({ ...options, yes: Boolean(options.yes || options.y) });
 });
-program
+const addCommand = program
     .command("add")
-    .description("Add a file entry to the .sct document tree.")
-    .argument("<filename>", "File name to add")
-    .argument("<location>", "Folder path where the file belongs")
-    .action(async (filename, location) => {
-    await add(filename, location);
+    .description("Add file or folder entries to the .sct document tree.")
+    .argument("[name]", "File name to add")
+    .argument("[target]", "Folder path, or name when using file/folder kind")
+    .argument("[location]", "Folder path when using file/folder kind")
+    .option("-c, --content <names...>", "Names to add")
+    .option("-d, --destination <location>", "Folder path where entries belong")
+    .action(async (name, target, location, options) => {
+    try {
+        await addFromInput(name, target, location, options);
+    }
+    catch (error) {
+        const message = error instanceof Error ? error.message : "Invalid add command.";
+        addCommand.error(message);
+    }
 });
 program
     .command("rm")
@@ -44,8 +84,10 @@ program
 program
     .command("render")
     .description("Render the .sct document tree.")
-    .action(async () => {
-    await render();
+    .option("--html", "Render an HTML preview file")
+    .option("--txt", "Render a text preview file")
+    .action(async (options) => {
+    await render(options);
 });
 program.parseAsync();
 //# sourceMappingURL=app.js.map

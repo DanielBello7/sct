@@ -1,5 +1,6 @@
 import type { TreeNode } from "./sct";
 import { basicTemplate } from "@/templates/basic";
+import { csharpAspnetCoreTemplate } from "@/templates/csharp/aspnet-core/index";
 import { javascriptNodeTemplate } from "@/templates/javascript/node/index";
 import { javascriptReactTemplate } from "@/templates/javascript/react/index";
 import { typescriptNodeTemplate } from "@/templates/typescript/node/index";
@@ -23,6 +24,9 @@ function templateForMetadata(metadata: TemplateMetadata): TreeNode {
 	}
 	if (metadata.language === "javascript" && metadata.framework === "node") {
 		return javascriptNodeTemplate(metadata.name);
+	}
+	if (metadata.language === "csharp" && metadata.framework === "aspnet-core") {
+		return csharpAspnetCoreTemplate(metadata.name);
 	}
 	return basicTemplate(metadata.name);
 }

@@ -111,7 +111,11 @@ export function parseSct(source: string): SctAst {
 		}
 
 		if (!hasTree) {
-			if (!trimmed.match(/^(name|type|language|framework|version|author|description)\s*=/)) {
+			if (
+				!trimmed.match(
+					/^(name|type|language|framework|version|author|description)\s*=/,
+				)
+			) {
 				throw new Error(`Unknown keyword or invalid metadata line: ${trimmed}`);
 			}
 

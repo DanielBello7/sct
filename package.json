@@ -1,11 +1,16 @@
 {
 	"name": "sct",
 	"version": "0.1.0",
-	"private": true,
 	"type": "module",
 	"bin": {
 		"sct": "./bin/sct"
 	},
+	"files": [
+		"bin",
+		"dist",
+		"docs",
+		"README.md"
+	],
 	"scripts": {
 		"sct:dev": "tsx -r tsconfig-paths/register src/app.ts",
 		"sct": "node dist/app.js",

@@ -1,12 +1,27 @@
 import { formatSctAst } from "@/libs/formatter";
 import { parseSct } from "@/libs/sct";
 import { cancel, intro, outro } from "@clack/prompts";
+import { OUTPUT_DIR } from "@/constants";
 import { findSctPath } from "@/libs/paths";
 import { findOrCreateFolder, locationParts } from "@/libs/tree-paths";
 import fs from "fs-extra";
 import pc from "picocolors";
 
-export async function add(filename: string, location: string) {
+type AddKind = "file" | "folder";
+
+export async function add(
+	name: string,
+	location: string,
+	kind: AddKind = "file",
+) {
+	await addMany([name], location, kind);
+}
+
+export async function addMany(
+	names: string[],
+	location: string,
+	kind: AddKind = "file",
+) {
 	intro(pc.bold("sct add"));
 
 	let outputPath: string | undefined;
@@ -21,7 +36,9 @@ export async function add(filename: string, location: string) {
 	}
 
 	if (!outputPath) {
-		console.error(pc.red("No .sct file found in out/. Run `sct init` first."));
+		console.error(
+			pc.red(`No .sct file found in ${OUTPUT_DIR}/. Run \`sct init\` first.`),
+		);
 		process.exit(1);
 	}
 
@@ -44,16 +61,36 @@ export async function add(filename: string, location: string) {
 		current = findOrCreateFolder(current, part);
 	}
 
-	const existingFile = current.children.find(
-		(child) => child.type === "file" && child.name === filename,
-	);
+	const added: string[] = [];
+	const skipped: string[] = [];
 
-	if (existingFile) {
-		outro(pc.yellow(`${filename} already exists in ${location}`));
+	for (const name of names) {
+		const existingEntry = current.children.find((child) => child.name === name);
+
+		if (existingEntry) {
+			skipped.push(name);
+			continue;
+		}
+
+		current.children.push({ type: kind, name, children: [] });
+		added.push(name);
+	}
+
+	if (added.length === 0) {
+		outro(pc.yellow(`No entries added. Already exists: ${skipped.join(", ")}`));
 		return;
 	}
 
-	current.children.push({ type: "file", name: filename, children: [] });
 	await fs.writeFile(outputPath, formatSctAst(parsed), "utf8");
-	outro(pc.green(`Added ${filename} to ${location}`));
+
+	const skippedMessage =
+		skipped.length > 0 ? pc.yellow(` Skipped: ${skipped.join(", ")}`) : "";
+
+	outro(
+		pc.green(
+			`Added ${added.length} ${kind}${added.length === 1 ? "" : "s"} to ${location}.`,
+		) + skippedMessage,
+	);
 }
+
+export type { AddKind };

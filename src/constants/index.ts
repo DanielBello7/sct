@@ -1,12 +1,12 @@
-import { MetadataKey } from "@/types";
+import type { MetadataKey } from "@/types";
 
-const DEFAULT_PROJECT_NAME = "TL";
-const DEFAULT_PROJECT_TYPE = "application";
+const DEFAULT_PROJECT_NAME = "Project";
+const DEFAULT_PROJECT_TYPE = "none";
 const DEFAULT_LANGUAGE = "typescript";
 const DEFAULT_FRAMEWORK = "none";
 const DEFAULT_VERSION = "0.1.0";
-const METADATA_KEY_WIDTH = 12;
-const OUTPUT_DIR = "out";
+const METADATA_KEY_WIDTH = 24;
+const OUTPUT_DIR = ".out";
 
 const METADATA_ORDER: MetadataKey[] = [
 	"name",
@@ -19,6 +19,7 @@ const METADATA_ORDER: MetadataKey[] = [
 ];
 
 const PROJECT_TYPE_OPTIONS = [
+	{ value: "none", label: "None" },
 	{ value: "application", label: "Application" },
 	{ value: "library", label: "Library" },
 	{ value: "service", label: "Service" },
@@ -28,6 +29,7 @@ const PROJECT_TYPE_OPTIONS = [
 const LANGUAGE_OPTIONS = [
 	{ value: "typescript", label: "TypeScript" },
 	{ value: "javascript", label: "JavaScript" },
+	{ value: "csharp", label: "C#" },
 ] as const;
 
 const LANGUAGE_FRAMEWORK_OPTIONS = [
@@ -48,6 +50,13 @@ const LANGUAGE_FRAMEWORK_OPTIONS = [
 			{ value: "node", label: "Node.js" },
 			{ value: "express", label: "Express" },
 			{ value: "react", label: "React" },
+		],
+	},
+	{
+		language: "csharp",
+		frameworks: [
+			{ value: "none", label: "None" },
+			{ value: "aspnet-core", label: "ASP.NET Core" },
 		],
 	},
 ] as const;

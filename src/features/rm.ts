@@ -1,4 +1,5 @@
 import { cancel, intro, outro } from "@clack/prompts";
+import { OUTPUT_DIR } from "@/constants";
 import { formatSctAst } from "@/libs/formatter";
 import { findSctPath } from "@/libs/paths";
 import { parseSct, type TreeNode } from "@/libs/sct";
@@ -59,7 +60,9 @@ async function rm(name: string, location?: string) {
 	}
 
 	if (!outputPath) {
-		console.error(pc.red("No .sct file found in out/. Run `sct init` first."));
+		console.error(
+			pc.red(`No .sct file found in ${OUTPUT_DIR}/. Run \`sct init\` first.`),
+		);
 		process.exit(1);
 	}
 
